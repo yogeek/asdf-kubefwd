@@ -20,7 +20,10 @@ install_kubefwd() {
   local download_path="$tmp_download_dir/$(get_filename)"
 
   echo "Downloading kubefwd from ${download_url}"
-  curl -Lo $download_path $download_url
+  if curl -s -D - -Lo $download_path -k $download_url | grep -qE "Status: 404"; then
+    echo "File Not Found: $download_url"
+    exit 1
+  fi
 
   echo "Creating bin directory"
   mkdir -p "${bin_install_path}"
