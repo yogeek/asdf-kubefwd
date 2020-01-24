@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+install_kubefwd() {
+  local install_type=$1
+  local version=$2
+  local install_path=$3
+  local bin_install_path="$install_path/bin"
+  local binary_path="$bin_install_path/kubefwd"
+  local download_url=$(get_download_url $version)
+
+  if [ "$TMPDIR" = "" ]; then
+    local tmp_download_dir=$(mktemp -d -t kubefwd_XXXXXX)
+  else
+    local tmp_download_dir=$TMPDIR
+  fi
+
+  local download_path="$tmp_download_dir/$(get_filename)"
+
+  echo "Downloading kubefwd from ${download_url}"
+  curl -Lo $download_path $download_url
+
+  echo "Creating bin directory"
+  mkdir -p "${bin_install_path}"
+
+  echo "Cleaning previous binaries"
+  rm -f $binary_path 2>/dev/null || true
+
+  echo "Copying binary"
+  tar zxf $download_path -C $bin_install_path
+}
+
+get_arch() {
+  # https://github.com/txn2/kubefwd/releases/download/1.11.1/kubefwd_Darwin_amd64.tar.gz
+  # https://github.com/txn2/kubefwd/releases/download/1.11.1/kubefwd_linux_amd64.tar.gz
+  echo "$(uname | sed 's/Linux/linux/')_amd64.tar.gz"
+}
+
+get_filename() {
+  local platform="$(get_arch)"
+
+  echo "kubefwd_${platform}"
+}
+
+get_download_url() {
+  local version=$1
+  local filename="$(get_filename)"
+
+  echo "https://github.com/txn2/kubefwd/releases/download/${version}/${filename}"
+}
+
+install_kubefwd $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
