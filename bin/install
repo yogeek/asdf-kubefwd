@@ -38,7 +38,7 @@ install_kubefwd() {
 get_arch() {
   # https://github.com/txn2/kubefwd/releases/download/1.11.1/kubefwd_Darwin_amd64.tar.gz
   # https://github.com/txn2/kubefwd/releases/download/1.11.1/kubefwd_linux_amd64.tar.gz
-  echo "$(uname | sed 's/Linux/linux/')_amd64.tar.gz"
+  echo "$(uname)_$(uname -p).tar.gz"
 }
 
 get_filename() {
